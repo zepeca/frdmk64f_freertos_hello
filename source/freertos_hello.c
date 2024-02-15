@@ -24,11 +24,39 @@
  ******************************************************************************/
 
 /* Task priorities. */
-#define hello_task_PRIORITY (configMAX_PRIORITIES - 1)
+#define TASK_ADMIN_PRIORITY (configMAX_PRIORITIES - 2)
+#define TASK_CMD_PRIORITY   (configMAX_PRIORITIES - 1)
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-static void hello_task(void *pvParameters);
+static void task_admin();
+static void task_cmd_left();
+static void task_cmd_right();
+static void task_cmd_forwrd();
+static void task_cmd_bckwrd();
+
+/*******************************************************************************
+ * Type def
+ ******************************************************************************/
+typedef enum{
+    CMD_LEFT = 0,
+    CMD_RIGHT,
+    CMD_FORWRD,
+    CMD_BCKWRD
+}COMMAND_en;
+
+
+/*******************************************************************************
+ * Global var
+ ******************************************************************************/
+static uint8_t cmd_rutine_array [] = {CMD_RIGHT,CMD_RIGHT, CMD_LEFT, CMD_LEFT, CMD_FORWRD, CMD_FORWRD, CMD_BCKWRD, CMD_BCKWRD};
+static uint8_t cmd_rutine_arraysize = sizeof(cmd_rutine_array) / sizeof(cmd_rutine_array[0]);
+
+static TaskHandle_t id_task_admin;
+static TaskHandle_t id_task_cmd_left;
+static TaskHandle_t id_task_cmd_right;
+static TaskHandle_t id_task_cmd_forwrd;
+static TaskHandle_t id_task_cmd_bckwrd;
 
 /*******************************************************************************
  * Code
@@ -42,14 +70,44 @@ int main(void)
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
     BOARD_InitDebugConsole();
-    if (xTaskCreate(hello_task, "Hello_task", configMINIMAL_STACK_SIZE + 100, NULL, hello_task_PRIORITY, NULL) !=
-        pdPASS)
+
+    /*carlosa admin task creation*/
+    if (xTaskCreate(task_admin, "task_admin", configMINIMAL_STACK_SIZE + 100, NULL, TASK_ADMIN_PRIORITY, &id_task_admin) != pdPASS)
     {
         PRINTF("Task creation failed!.\r\n");
-        while (1)
-            ;
+        while (1);
     }
+
+    /*carlosa LEFT task creation*/
+    if (xTaskCreate(task_cmd_left, "task_cmd_left", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &id_task_cmd_left) != pdPASS)
+    {
+        PRINTF("Task creation failed!.\r\n");
+        while (1);
+    }
+
+    /*carlosa RIGHT task creation*/
+    if (xTaskCreate(task_cmd_right, "task_cmd_right", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &id_task_cmd_right) != pdPASS)
+    {
+        PRINTF("Task creation failed!.\r\n");
+        while (1);
+    }
+
+    /*carlosa FOREWARD task creation*/
+    if (xTaskCreate(task_cmd_forwrd, "task_cmd_forwrd", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &id_task_cmd_forwrd) != pdPASS)
+    {
+        PRINTF("Task creation failed!.\r\n");
+        while (1);
+    }
+
+        /*carlosa BACKWARD task creation*/
+    if (xTaskCreate(task_cmd_bckwrd, "task_cmd_bckwrd", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &id_task_cmd_bckwrd) != pdPASS)
+    {
+        PRINTF("Task creation failed!.\r\n");
+        while (1);
+    }
+
     vTaskStartScheduler();
+
     for (;;)
         ;
 }
@@ -57,11 +115,67 @@ int main(void)
 /*!
  * @brief Task responsible for printing of "Hello world." message.
  */
-static void hello_task(void *pvParameters)
-{
-    for (;;)
-    {
-        PRINTF("Hello world.\r\n");
+
+static void task_admin( void ){
+
+    for(;;){
+       
+        for (uint8_t cmd_rutine_id = 0; cmd_rutine_id < cmd_rutine_arraysize; cmd_rutine_id++){
+
+            switch(cmd_rutine_array[cmd_rutine_id]){
+
+                case CMD_LEFT:
+                vTaskResume( id_task_cmd_left );
+                break;
+
+                case CMD_RIGHT:
+                vTaskResume( id_task_cmd_right );
+                break;
+
+                case CMD_FORWRD:
+                vTaskResume( id_task_cmd_forwrd );
+                break;
+
+                case CMD_BCKWRD:
+                vTaskResume( id_task_cmd_bckwrd );
+                break;
+
+                default:
+                break;
+            }
+        }
+        vTaskSuspend(NULL); 
+    }
+}
+
+static void task_cmd_left(){
+
+    for(;;){
         vTaskSuspend(NULL);
+        PRINTF("Left\n");
+    }
+}
+
+static void task_cmd_right(){
+
+    for(;;){
+        vTaskSuspend(NULL);
+        PRINTF("Right\n");
+    }
+}
+
+static void task_cmd_forwrd(){
+
+    for(;;){
+        vTaskSuspend(NULL);
+        PRINTF("Foreward\n");
+    }
+}
+
+static void task_cmd_bckwrd(){
+
+    for(;;){
+        vTaskSuspend(NULL);
+        PRINTF("Backward\n");
     }
 }
