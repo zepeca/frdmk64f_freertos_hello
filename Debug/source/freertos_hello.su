@@ -1,0 +1,6 @@
+../source/freertos_hello.c:66:5:main	16	static
+../source/freertos_hello.c:118:13:task_admin	16	static
+../source/freertos_hello.c:150:13:task_cmd_left	8	static
+../source/freertos_hello.c:155:13:task_cmd_right	8	static
+../source/freertos_hello.c:160:13:task_cmd_forwrd	8	static
+../source/freertos_hello.c:165:13:task_cmd_bckwrd	8	static
