@@ -1,6 +1,6 @@
-../source/freertos_hello.c:67:5:main	16	static
-../source/freertos_hello.c:119:13:task_admin	16	static
-../source/freertos_hello.c:151:13:task_cmd_left	8	static
-../source/freertos_hello.c:159:13:task_cmd_right	8	static
-../source/freertos_hello.c:167:13:task_cmd_forwrd	8	static
-../source/freertos_hello.c:175:13:task_cmd_bckwrd	8	static
+../source/freertos_hello.c:59:5:main	16	static
+../source/freertos_hello.c:115:13:task_admin	16	static
+../source/freertos_hello.c:147:13:task_cmd_left	8	static
+../source/freertos_hello.c:162:13:task_cmd_right	8	static
+../source/freertos_hello.c:177:13:task_cmd_forwrd	8	static
+../source/freertos_hello.c:191:13:task_cmd_bckwrd	8	static

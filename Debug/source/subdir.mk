@@ -5,14 +5,17 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../source/freertos_hello.c \
+../source/max7219.c \
 ../source/semihost_hardfault.c 
 
 C_DEPS += \
 ./source/freertos_hello.d \
+./source/max7219.d \
 ./source/semihost_hardfault.d 
 
 OBJS += \
 ./source/freertos_hello.o \
+./source/max7219.o \
 ./source/semihost_hardfault.o 
 
 
@@ -28,7 +31,7 @@ source/%.o: ../source/%.c source/subdir.mk
 clean: clean-source
 
 clean-source:
-	-$(RM) ./source/freertos_hello.d ./source/freertos_hello.o ./source/semihost_hardfault.d ./source/semihost_hardfault.o
+	-$(RM) ./source/freertos_hello.d ./source/freertos_hello.o ./source/max7219.d ./source/max7219.o ./source/semihost_hardfault.d ./source/semihost_hardfault.o
 
 .PHONY: clean-source
 

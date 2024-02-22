@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.c": "c",
+        "text.h": "c",
+        "fsl_dspi.h": "c",
+        "fsl_debug_console.h": "c",
+        "fsl_device_registers.h": "c",
+        "clock_config.h": "c",
+        "freertos_hello.h": "c",
+        "max7219.h": "c"
+    }
+}

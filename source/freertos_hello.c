@@ -19,6 +19,9 @@
 #include "clock_config.h"
 #include "board.h"
 
+#include "max7219.h"
+#include "freertos_hello.h"
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -36,27 +39,16 @@ static void task_cmd_forwrd();
 static void task_cmd_bckwrd();
 
 /*******************************************************************************
- * Type def
- ******************************************************************************/
-typedef enum{
-    CMD_LEFT = 0,
-    CMD_RIGHT,
-    CMD_FORWRD,
-    CMD_BCKWRD
-}COMMAND_en;
-
-
-/*******************************************************************************
  * Global var
  ******************************************************************************/
 static uint8_t cmd_rutine_array [] = {CMD_RIGHT,CMD_RIGHT, CMD_LEFT, CMD_LEFT, CMD_FORWRD, CMD_FORWRD, CMD_BCKWRD, CMD_BCKWRD};
 static uint8_t cmd_rutine_arraysize = sizeof(cmd_rutine_array) / sizeof(cmd_rutine_array[0]);
 
-static TaskHandle_t id_task_admin;
-static TaskHandle_t id_task_cmd_left;
-static TaskHandle_t id_task_cmd_right;
-static TaskHandle_t id_task_cmd_forwrd;
-static TaskHandle_t id_task_cmd_bckwrd;
+static TaskHandle_t hndlr_task_admin;
+static TaskHandle_t hndlr_task_cmd_left;
+static TaskHandle_t hndlr_task_cmd_right;
+static TaskHandle_t hndlr_task_cmd_forwrd;
+static TaskHandle_t hndlr_task_cmd_bckwrd;
 
 /*******************************************************************************
  * Code
@@ -71,36 +63,40 @@ int main(void)
     BOARD_InitBootClocks();
     BOARD_InitDebugConsole();
 
+    PRINTF("This example uses the MAX7219 matrix LEDs.\r\n");
+    SPI_init();
+    max7219_init(MAX7219_SEG_NUM, max7219_buffer, MAX7219_BUFFER_SIZE);
+
     /*carlosa admin task creation*/
-    if (xTaskCreate(task_admin, "task_admin", configMINIMAL_STACK_SIZE + 100, NULL, TASK_ADMIN_PRIORITY, &id_task_admin) != pdPASS)
+    if (xTaskCreate(task_admin, "task_admin", configMINIMAL_STACK_SIZE + 100, NULL, TASK_ADMIN_PRIORITY, &hndlr_task_admin) != pdPASS)
     {
         PRINTF("Task creation failed!.\r\n");
         while (1);
     }
 
     /*carlosa LEFT task creation*/
-    if (xTaskCreate(task_cmd_left, "task_cmd_left", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &id_task_cmd_left) != pdPASS)
+    if (xTaskCreate(task_cmd_left, "task_cmd_left", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &hndlr_task_cmd_left) != pdPASS)
     {
         PRINTF("Task creation failed!.\r\n");
         while (1);
     }
 
     /*carlosa RIGHT task creation*/
-    if (xTaskCreate(task_cmd_right, "task_cmd_right", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &id_task_cmd_right) != pdPASS)
+    if (xTaskCreate(task_cmd_right, "task_cmd_right", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &hndlr_task_cmd_right) != pdPASS)
     {
         PRINTF("Task creation failed!.\r\n");
         while (1);
     }
 
     /*carlosa FOREWARD task creation*/
-    if (xTaskCreate(task_cmd_forwrd, "task_cmd_forwrd", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &id_task_cmd_forwrd) != pdPASS)
+    if (xTaskCreate(task_cmd_forwrd, "task_cmd_forwrd", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &hndlr_task_cmd_forwrd) != pdPASS)
     {
         PRINTF("Task creation failed!.\r\n");
         while (1);
     }
 
         /*carlosa BACKWARD task creation*/
-    if (xTaskCreate(task_cmd_bckwrd, "task_cmd_bckwrd", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &id_task_cmd_bckwrd) != pdPASS)
+    if (xTaskCreate(task_cmd_bckwrd, "task_cmd_bckwrd", configMINIMAL_STACK_SIZE + 100, NULL, TASK_CMD_PRIORITY, &hndlr_task_cmd_bckwrd) != pdPASS)
     {
         PRINTF("Task creation failed!.\r\n");
         while (1);
@@ -125,19 +121,19 @@ static void task_admin( void ){
             switch(cmd_rutine_array[cmd_rutine_id]){
 
                 case CMD_LEFT:
-                vTaskResume( id_task_cmd_left );
+                vTaskResume( hndlr_task_cmd_left );
                 break;
 
                 case CMD_RIGHT:
-                vTaskResume( id_task_cmd_right );
+                vTaskResume( hndlr_task_cmd_right );
                 break;
 
                 case CMD_FORWRD:
-                vTaskResume( id_task_cmd_forwrd );
+                vTaskResume( hndlr_task_cmd_forwrd );
                 break;
 
                 case CMD_BCKWRD:
-                vTaskResume( id_task_cmd_bckwrd );
+                vTaskResume( hndlr_task_cmd_bckwrd );
                 break;
 
                 default:
@@ -152,7 +148,14 @@ static void task_cmd_left(){
 
     for(;;){
         vTaskSuspend(NULL);
+        
         PRINTF("Left\n");
+        
+        draw_cmd(CMD_LEFT);
+    	//drawText();
+		delay_ms(1000);
+
+		cleanMatrix();
     }
 }
 
@@ -160,7 +163,14 @@ static void task_cmd_right(){
 
     for(;;){
         vTaskSuspend(NULL);
+        
         PRINTF("Right\n");
+
+        draw_cmd(CMD_RIGHT);
+    	//drawText();
+		delay_ms(1000);
+
+		cleanMatrix();
     }
 }
 
@@ -169,6 +179,12 @@ static void task_cmd_forwrd(){
     for(;;){
         vTaskSuspend(NULL);
         PRINTF("Foreward\n");
+
+        draw_cmd(CMD_FORWRD);
+    	//drawText();
+		delay_ms(1000);
+
+		cleanMatrix();
     }
 }
 
@@ -177,5 +193,11 @@ static void task_cmd_bckwrd(){
     for(;;){
         vTaskSuspend(NULL);
         PRINTF("Backward\n");
+
+        draw_cmd(CMD_BCKWRD);
+    	//drawText();
+		delay_ms(1000);
+
+		cleanMatrix();
     }
 }
