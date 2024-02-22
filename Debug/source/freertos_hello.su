@@ -1,6 +1,9 @@
-../source/freertos_hello.c:59:5:main	16	static
-../source/freertos_hello.c:115:13:task_admin	16	static
-../source/freertos_hello.c:147:13:task_cmd_left	8	static
-../source/freertos_hello.c:162:13:task_cmd_right	8	static
-../source/freertos_hello.c:177:13:task_cmd_forwrd	8	static
-../source/freertos_hello.c:191:13:task_cmd_bckwrd	8	static
+../source/freertos_hello.c:53:13:_cbSendSystemDesc	8	static
+../source/freertos_hello.c:61:6:SEGGER_SYSVIEW_Conf	8	static
+../source/freertos_hello.c:70:5:SEGGER_SYSVIEW_X_GetTimestamp	16	static
+../source/freertos_hello.c:110:5:main	16	static
+../source/freertos_hello.c:171:13:task_admin	16	static
+../source/freertos_hello.c:207:13:task_cmd_left	8	static
+../source/freertos_hello.c:222:13:task_cmd_right	8	static
+../source/freertos_hello.c:237:13:task_cmd_forwrd	8	static
+../source/freertos_hello.c:251:13:task_cmd_bckwrd	8	static

@@ -22,6 +22,57 @@
 #include "max7219.h"
 #include "freertos_hello.h"
 
+#define SYSTEMVIEW_ENABLED 1
+#if SYSTEMVIEW_ENABLED /*BEGIN SystemView for FreeRTOS and FRDM-K64F*/
+/* Include internal header to get SEGGER_RTT_CB */
+#include "SEGGER_SYSVIEW.h"
+#include "SEGGER_RTT.h"
+#define SYSVIEW_DEVICE_NAME "FRDMK64F Cortex-M4"
+#define SYSVIEW_RAM_BASE (0x1FFF0000)
+extern SEGGER_RTT_CB _SEGGER_RTT;
+extern const SEGGER_SYSVIEW_OS_API SYSVIEW_X_OS_TraceAPI;
+/* The application name to be displayed in SystemViewer */
+#ifndef SYSVIEW_APP_NAME
+#define SYSVIEW_APP_NAME "SDK System view example"
+#endif
+/* The target device name */
+#ifndef SYSVIEW_DEVICE_NAME
+#define SYSVIEW_DEVICE_NAME "Generic Cortex device"
+#endif
+/* Frequency of the timestamp. Must match SEGGER_SYSVIEW_GET_TIMESTAMP in SEGGER_SYSVIEW_Conf.h */
+#define SYSVIEW_TIMESTAMP_FREQ (configCPU_CLOCK_HZ)
+/* System Frequency. SystemcoreClock is used in most CMSIS compatible projects. */
+#define SYSVIEW_CPU_FREQ configCPU_CLOCK_HZ
+/* The lowest RAM address used for IDs (pointers) */
+#ifndef SYSVIEW_RAM_BASE
+#define SYSVIEW_RAM_BASE 0x20000000
+#endif
+/*!
+* @brief System View callback
+*/
+static void _cbSendSystemDesc(void)
+{
+SEGGER_SYSVIEW_SendSysDesc("N=" SYSVIEW_APP_NAME ",D=" SYSVIEW_DEVICE_NAME ",O=FreeRTOS");
+SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick");
+}
+/*!
+* @brief System View configuration
+*/
+void SEGGER_SYSVIEW_Conf(void)
+{
+SEGGER_SYSVIEW_Init(SYSVIEW_TIMESTAMP_FREQ, SYSVIEW_CPU_FREQ, &SYSVIEW_X_OS_TraceAPI,
+_cbSendSystemDesc);
+SEGGER_SYSVIEW_SetRAMBase(SYSVIEW_RAM_BASE);
+}
+/*!
+* @brief Apply only for M0plus core. M4/M3 uses cycle counter.
+*/
+U32 SEGGER_SYSVIEW_X_GetTimestamp(void)
+{
+return __get_IPSR() ? xTaskGetTickCountFromISR() : xTaskGetTickCount();
+}
+#endif /*END SystemView for FreeRTOS and FRDM-K64F*/
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -66,6 +117,11 @@ int main(void)
     PRINTF("This example uses the MAX7219 matrix LEDs.\r\n");
     SPI_init();
     max7219_init(MAX7219_SEG_NUM, max7219_buffer, MAX7219_BUFFER_SIZE);
+
+#if SYSTEMVIEW_ENABLED
+   SEGGER_SYSVIEW_Conf();
+   PRINTF("RTT block address is: 0x%x \r\n", &_SEGGER_RTT);
+#endif
 
     /*carlosa admin task creation*/
     if (xTaskCreate(task_admin, "task_admin", configMINIMAL_STACK_SIZE + 100, NULL, TASK_ADMIN_PRIORITY, &hndlr_task_admin) != pdPASS)
@@ -115,6 +171,10 @@ int main(void)
 static void task_admin( void ){
 
     for(;;){
+
+#if    	SYSTEMVIEW_ENABLED
+    	SEGGER_SYSVIEW_PrintfTarget("Hello World");
+#endif
        
         for (uint8_t cmd_rutine_id = 0; cmd_rutine_id < cmd_rutine_arraysize; cmd_rutine_id++){
 

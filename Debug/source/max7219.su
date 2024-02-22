@@ -1,5 +1,5 @@
-C:\MCUXpresso_workspace\frdmk64f_freertos_hello\CMSIS/core_cm4.h:1809:22:__NVIC_SetPriority	16	static
-C:\MCUXpresso_workspace\frdmk64f_freertos_hello\CMSIS/core_cm4.h:2017:26:SysTick_Config	16	static
+C:\Users\guion\Documents\MCUXpressoIDE_11.8.0_1165\workspace\frdmk64f_freertos_hello\CMSIS/core_cm4.h:1809:22:__NVIC_SetPriority	16	static
+C:\Users\guion\Documents\MCUXpressoIDE_11.8.0_1165\workspace\frdmk64f_freertos_hello\CMSIS/core_cm4.h:2017:26:SysTick_Config	16	static
 ../source/max7219.c:115:6:vApplicationTickHook	4	static
 ../source/max7219.c:123:6:delay_ms	16	static
 ../source/max7219.c:141:6:max7219_word	40	static
@@ -15,5 +15,5 @@ C:\MCUXpresso_workspace\frdmk64f_freertos_hello\CMSIS/core_cm4.h:2017:26:SysTick
 ../source/max7219.c:271:6:SPI_init	48	static
 ../source/max7219.c:299:6:drawFace	16	static
 ../source/max7219.c:315:6:draw_cmd	24	static
-../source/max7219.c:356:6:drawText	16	static
-../source/max7219.c:372:6:cleanMatrix	16	static
+../source/max7219.c:353:6:drawText	16	static
+../source/max7219.c:369:6:cleanMatrix	16	static
